@@ -50,7 +50,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   bool _servicesFound = false;
   bool _castConnected = false;
   ServiceDiscovery _serviceDiscovery;
@@ -58,22 +57,23 @@ class _MyHomePageState extends State<MyHomePage> {
   List _videoItems = [
     CastMedia(
       title: 'Chromecast video 1',
-      contentId: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-      images: ['https://static1.squarespace.com/static/5647f7e9e4b0f54883c66275/5647f9afe4b0caa2cf189d56/56489d67e4b0734a6c410a64/1447599477357/?format=1500w'],
+      contentId:
+          'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+      images: [
+        'https://static1.squarespace.com/static/5647f7e9e4b0f54883c66275/5647f9afe4b0caa2cf189d56/56489d67e4b0734a6c410a64/1447599477357/?format=1500w'
+      ],
     ),
     CastMedia(
-      title: 'Chromecast video 2',
-      contentId: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-      images: ['https://i.ytimg.com/vi/YlYCO2VLUEc/maxresdefault.jpg']
-    )
+        title: 'Chromecast video 2',
+        contentId:
+            'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+        images: ['https://i.ytimg.com/vi/YlYCO2VLUEc/maxresdefault.jpg'])
   ];
 
   void initState() {
-
     super.initState();
 
     _reconnectOrDiscover();
-
   }
 
   _reconnectOrDiscover() async {
@@ -86,7 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
   _discover() async {
     _serviceDiscovery = ServiceDiscovery();
     _serviceDiscovery.changes.listen((_) {
-      setState(() => _servicesFound = _serviceDiscovery.foundServices.length > 0);
+      setState(
+          () => _servicesFound = _serviceDiscovery.foundServices.length > 0);
     });
     _serviceDiscovery.startDiscovery();
   }
@@ -98,17 +99,21 @@ class _MyHomePageState extends State<MyHomePage> {
     String type = prefs.getString('cast_session_device_type');
     String sourceId = prefs.getString('cast_session_sender_id');
     String destinationId = prefs.getString('cast_session_destination_id');
-    if (null == host || null == name || null == type || null == sourceId || null == destinationId) {
+    if (null == host ||
+        null == name ||
+        null == type ||
+        null == sourceId ||
+        null == destinationId) {
       return false;
     }
     CastDevice device = CastDevice(
-      name: name,
-      host: host,
-      port: prefs.getInt('cast_session_port') ?? 8009,
-      type: type
-    );
+        name: name,
+        host: host,
+        port: prefs.getInt('cast_session_port') ?? 8009,
+        type: type);
     _castSender = CastSender(device);
-    StreamSubscription subscription = _castSender.castSessionController.stream.listen((CastSession castSession) {
+    StreamSubscription subscription = _castSender.castSessionController.stream
+        .listen((CastSession castSession) {
       print('CastSession update ${castSession.isConnected.toString()}');
       if (castSession.isConnected) {
         _castSessionIsConnected(castSession);
@@ -126,7 +131,6 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void disconnect() async {
-
     if (null != _castSender) {
       await _castSender.disconnect();
       final prefs = await SharedPreferences.getInstance();
@@ -137,17 +141,15 @@ class _MyHomePageState extends State<MyHomePage> {
       prefs.remove('cast_session_sender_id');
       prefs.remove('cast_session_destination_id');
       setState(() {
-          _castSender = null;
-          _servicesFound = false;
-          _castConnected = false;
-          _discover();
+        _castSender = null;
+        _servicesFound = false;
+        _castConnected = false;
+        _discover();
       });
     }
-
   }
 
   void _castSessionIsConnected(CastSession castSession) async {
-
     setState(() {
       _castConnected = true;
     });
@@ -159,7 +161,6 @@ class _MyHomePageState extends State<MyHomePage> {
     prefs.setString('cast_session_device_type', _castSender.device.type);
     prefs.setString('cast_session_sender_id', castSession.sourceId);
     prefs.setString('cast_session_destination_id', castSession.destinationId);
-
   }
 
   void _connectToDevice(CastDevice device) async {
@@ -167,7 +168,8 @@ class _MyHomePageState extends State<MyHomePage> {
     _serviceDiscovery.stopDiscovery();
 
     _castSender = CastSender(device);
-    StreamSubscription subscription = _castSender.castSessionController.stream.listen((CastSession castSession) {
+    StreamSubscription subscription = _castSender.castSessionController.stream
+        .listen((CastSession castSession) {
       if (castSession.isConnected) {
         _castSessionIsConnected(castSession);
       }
@@ -201,7 +203,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-
     List<Widget> actionButtons = [];
     if (_servicesFound || _castConnected) {
       IconData iconData = _castConnected ? Icons.cast_connected : Icons.cast;
@@ -215,9 +216,10 @@ class _MyHomePageState extends State<MyHomePage> {
               disconnect();
               return;
             }
-            Navigator.of(context)
-                .push(new MaterialPageRoute(
-              builder: (BuildContext context) => DevicePicker(serviceDiscovery: _serviceDiscovery, onDevicePicked: _connectToDevice),
+            Navigator.of(context).push(new MaterialPageRoute(
+              builder: (BuildContext context) => DevicePicker(
+                  serviceDiscovery: _serviceDiscovery,
+                  onDevicePicked: _connectToDevice),
               fullscreenDialog: true,
             ));
           },
@@ -226,20 +228,20 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     // TODO: if connected, also show (even if there are no services found)
 
-
     List<Widget> stackChildren = [
-      ListView.builder(itemBuilder: _buildVideoListItem, itemCount: _videoItems.length,),
+      ListView.builder(
+        itemBuilder: _buildVideoListItem,
+        itemCount: _videoItems.length,
+      ),
     ];
 
     if (null != _castSender) {
-      stackChildren.add(
-          Positioned(
-            bottom: 0.0,
-            right: 0.0,
-            left: 0.0,
-            child: CastMiniMediaControls(_castSender, canExtend: true),
-          )
-      );
+      stackChildren.add(Positioned(
+        bottom: 0.0,
+        right: 0.0,
+        left: 0.0,
+        child: CastMiniMediaControls(_castSender, canExtend: true),
+      ));
     }
 
     return Builder(builder: (BuildContext context) {
